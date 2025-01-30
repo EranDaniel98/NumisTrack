@@ -12,18 +12,20 @@ class CoinController {
     }
 
     static async addCoin(req, res) {
-        const { name, year, country, condition, value, description } = req.body;
+        const { name, year, country, condition, value, description, additionalAttributes } = req.body;
 
         try {
             const newCoin = new Coin({
+                userId: req.user.id,
                 name,
                 year,
                 country,
                 condition,
                 value,
                 description,
-                userId: req.user.id,
+                additionalAttributes,
             });
+
             await newCoin.save();
             return res.status(201).json({ message: 'Coin added successfully.', coin: newCoin });
         } catch (error) {
@@ -34,7 +36,12 @@ class CoinController {
     // Update an existing coin
     static async updateCoin(req, res) {
         try {
-            const updatedCoin = await Coin.findByIdAndUpdate(req.params.id, req.body, { new: true });
+            const updatedCoin = await Coin.findByIdAndUpdate(
+                req.params.id,
+                { $set: req.body },
+                { new: true }
+            );
+
             if (!updatedCoin) {
                 return res.status(404).json({ message: 'Coin not found.' });
             }
