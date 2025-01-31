@@ -1,19 +1,22 @@
+const errorHandler = require('./middleware/errorHandler');
+const connectDB = require('./config/database');
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
-const app = express();
+const authRoutes = require('./routes/auth')
+const coinRoutes = require('./routes/coins')
 
-app.use(express.json());
+const app = express();
+app.use(errorHandler);
+app.use(express.json({ limit: '1mb' }));
 app.use(cors());
 
-app.get('/', (req, res) => res.send("Welcome to the Coin Collection API"));
+connectDB();
 
-mongoose
-    .connect(process.env.MONGO_URI, {useNewUrlParser: true, useUnifiedTopology: true})
-    .then(() => console.log('Connected to MongoDB'))
-    .catch((err) => console.error('Error connecting to MongoDB:', err));
+app.use('/api/auth', authRoutes)
+app.use('/api/coins', coinRoutes)
+
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => console.log('Server running on http://localhost:${PORT}'));

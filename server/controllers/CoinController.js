@@ -1,4 +1,5 @@
 const Coin = require('../models/coin');
+const validateCoin = require('../validation/coinValidation');
 
 class CoinController {
     // Fetch all coins for a user
@@ -12,18 +13,15 @@ class CoinController {
     }
 
     static async addCoin(req, res) {
-        const { name, year, country, condition, value, description, additionalAttributes } = req.body;
+        const { error } = validateCoin(req.body);
+        if (error) {
+            return res.status(400).json({ message: error.details[0].message });
+        }
 
         try {
             const newCoin = new Coin({
                 userId: req.user.id,
-                name,
-                year,
-                country,
-                condition,
-                value,
-                description,
-                additionalAttributes,
+                ...req.body,
             });
 
             await newCoin.save();
