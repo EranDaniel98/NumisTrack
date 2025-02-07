@@ -1,7 +1,6 @@
 const winston = require('winston');
 const DailyRotateFile = require('winston-daily-rotate-file'); 
 require('winston-mongodb');
-require('dotenv').config();
 
 
 const logFormat = winston.format.combine(
